@@ -1,5 +1,4 @@
 #! /bin/bash
-
 echo "-- Configure and optimize the OS"
 echo never > /sys/kernel/mm/transparent_hugepage/enabled
 echo never > /sys/kernel/mm/transparent_hugepage/defrag
@@ -13,41 +12,27 @@ timedatectl set-timezone UTC
 echo "CentOS Linux release 7.5.1810 (Core)" > /etc/redhat-release
 
 echo "-- Install Java OpenJDK8 and other tools"
-yum install -y java-1.8.0-openjdk-devel vim wget curl git bind-utils
+# IBM image doesn't have ntpd or chronyd installed
+yum install -y java-1.8.0-openjdk-devel vim wget curl git bind-utils chrony
 
-# Check input parameters
-case "$1" in
-        aws)
-            echo "server 169.254.169.123 prefer iburst minpoll 4 maxpoll 4" >> /etc/chrony.conf
-            systemctl restart chronyd
-            ;;
-        azure)
-            umount /mnt/resource
-            mount /dev/sdb1 /opt
-            ;;
-        gcp)
-            ;;
-        openstack)
-            echo "Not supported yet!"
-            exit 1
-            ;;
-        *)
-            echo $"Usage: $0 {aws|azure|gcp} template-file [docker-device]"
-            echo $"example: ./setup.sh azure default_template.json"
-            echo $"example: ./setup.sh aws cdsw_template.json /dev/xvdb"
-            exit 1
-esac
+systemctl enable chronyd
+systemctl start chronyd
 
 TEMPLATE=$2
-# ugly, but for now the docker device has to be put by the user
 DOCKERDEVICE=$3
 
 
 echo "-- Configure networking"
 PUBLIC_IP=`curl https://api.ipify.org/`
-hostnamectl set-hostname `hostname -f`
-echo "`hostname -I` `hostname`" >> /etc/hosts
-sed -i "s/HOSTNAME=.*/HOSTNAME=`hostname`/" /etc/sysconfig/network
+PRIVATE_IP=`hostname -I | cut -d " " -f1`
+# if /etc/hosts doesn't have entry "127.0.0.1 cloudera-edh-fresh-vsi.bluemix.net cloudera-edh-fresh-vsi",
+# then hostname -f returns only "bluemix.net"
+#hostnamectl set-hostname `hostname -f`
+# need to erase local etc hosts file..
+echo "127.0.0.1 localhost.localdomain localhost" > /etc/hosts
+echo "127.0.0.1 localhost4.localdomain4 localhost4" >> /etc/hosts
+echo "$PRIVATE_IP `hostname`" >> /etc/hosts
+#sed -i "s/HOSTNAME=.*/HOSTNAME=`hostname`/" /etc/sysconfig/network
 iptables-save > ~/firewall.rules
 systemctl disable firewalld
 systemctl stop firewalld
@@ -71,8 +56,7 @@ yum clean all
 rm -rf /var/cache/yum/
 yum repolist
 
-yum install -y cloudera-manager-daemons cloudera-manager-agent cloudera-manager-server
-yum install -y MariaDB-server MariaDB-client
+yum install -y cloudera-manager-daemons cloudera-manager-agent cloudera-manager-server MariaDB-server MariaDB-client
 cat mariadb.config > /etc/my.cnf
 
 
@@ -100,6 +84,7 @@ wget https://archive.cloudera.com/CFM/csd/1.0.0.0/NIFI-1.9.0.1.0.0.0-90.jar -P /
 wget https://archive.cloudera.com/CFM/csd/1.0.0.0/NIFICA-1.9.0.1.0.0.0-90.jar -P /opt/cloudera/csd/
 wget https://archive.cloudera.com/CFM/csd/1.0.0.0/NIFIREGISTRY-0.3.0.1.0.0.0-90.jar -P /opt/cloudera/csd/
 wget https://archive.cloudera.com/cdsw1/1.5.0/csd/CLOUDERA_DATA_SCIENCE_WORKBENCH-CDH6-1.5.0.jar -P /opt/cloudera/csd/
+
 chown cloudera-scm:cloudera-scm /opt/cloudera/csd/*
 chmod 644 /opt/cloudera/csd/*
 
@@ -151,17 +136,31 @@ yum install -y python-pip
 pip install --upgrade pip
 pip install cm_client
 
-sed -i "s/YourHostname/`hostname -f`/g" ~/OneNodeCDHCluster/$TEMPLATE
+sed -i "s/YourHostname/`hostname`/g" ~/OneNodeCDHCluster/$TEMPLATE
 sed -i "s/YourCDSWDomain/cdsw.$PUBLIC_IP.nip.io/g" ~/OneNodeCDHCluster/$TEMPLATE
-sed -i "s/YourPrivateIP/`hostname -I | tr -d '[:space:]'`/g" ~/OneNodeCDHCluster/$TEMPLATE
+sed -i "s/YourPrivateIP/$PRIVATE_IP/g" ~/OneNodeCDHCluster/$TEMPLATE
 sed -i "s#YourDockerDevice#$DOCKERDEVICE#g" ~/OneNodeCDHCluster/$TEMPLATE
 
-sed -i "s/YourHostname/`hostname -f`/g" ~/OneNodeCDHCluster/create_cluster.py
+sed -i "s/YourHostname/`hostname`/g" ~/OneNodeCDHCluster/create_cluster.py
 
 python ~/OneNodeCDHCluster/create_cluster.py $TEMPLATE
 
 # configure and start EFM and Minifi
 service efm start
-service minifi start
+#service minifi start
 
-echo "-- At this point you can login into Cloudera Manager host on port 7180 and follow the deployment of the cluster"
+# create copies of the config folders for spark and hdfs to work from CDSW.
+# the trick is to replace the hostname with the private IP so that the host can be found.
+# IBM cloud currently doesn't resolve internal hostnames.
+mkdir /etc/spark/conf2
+cp -R /etc/spark/conf/* /etc/spark/conf2
+sed -i "s/`hostname`/$PRIVATE_IP/g" /etc/spark/conf/*
+sed -i "s/`hostname`/$PRIVATE_IP/g" /etc/spark/conf/yarn-conf/*
+
+mkdir /etc/hadoop/conf2
+cp -R /etc/hadoop/conf/* /etc/hadoop/conf2
+sed -i "s/`hostname`/$PRIVATE_IP/g" /etc/hadoop/conf/*
+
+export HADOOP_CONF_DIR=/etc/hadoop/conf2
+export SPARK_CONF_DIR=/etc/spark/conf2
+

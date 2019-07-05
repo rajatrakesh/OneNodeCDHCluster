@@ -23,4 +23,10 @@ CREATE DATABASE navms DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci
 GRANT ALL ON navms.* TO 'navms'@'%' IDENTIFIED BY 'cloudera';
 
 CREATE DATABASE oozie DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci;
-GRANT ALL ON oozie.* TO 'oozie'@'%' IDENTIFIED BY 'cloudera'
+GRANT ALL ON oozie.* TO 'oozie'@'%' IDENTIFIED BY 'cloudera';
+
+CREATE DATABASE efm DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci;
+GRANT ALL ON efm.* TO 'efm'@'%' IDENTIFIED BY 'cloudera';
+
+CREATE DATABASE nifireg DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci;
+GRANT ALL ON nifireg.* TO 'nifireg'@'%' IDENTIFIED BY 'cloudera';
