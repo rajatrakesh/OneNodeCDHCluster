@@ -1,15 +1,12 @@
 {
-   "cdhVersion":"6.2.0",
+   "cdhVersion":"5.16.1",
    "cmVersion":"6.2.0",
-   "displayName":"OneNodeCluster",
+   "displayName":"OneNodeC5",
    "hostTemplates":[
       {
          "cardinality":1,
          "refName":"HostTemplate-0-from-YourHostname",
          "roleConfigGroupsRefNames":[
-            "cdsw-CDSW_APPLICATION-BASE",
-            "cdsw-CDSW_DOCKER-BASE",
-            "cdsw-CDSW_MASTER-BASE",
             "hdfs-BALANCER-BASE",
             "hdfs-DATANODE-BASE",
             "hdfs-NAMENODE-BASE",
@@ -27,8 +24,8 @@
             "kudu-KUDU_MASTER-BASE",
             "kudu-KUDU_TSERVER-BASE",
             "oozie-OOZIE_SERVER-BASE",
-            "spark_on_yarn-GATEWAY-BASE",
-            "spark_on_yarn-SPARK_YARN_HISTORY_SERVER-BASE",
+            "spark2_on_yarn-GATEWAY-BASE",
+            "spark2_on_yarn-SPARK2_YARN_HISTORY_SERVER-BASE",
             "yarn-JOBHISTORY-BASE",
             "yarn-NODEMANAGER-BASE",
             "yarn-RESOURCEMANAGER-BASE",
@@ -40,7 +37,7 @@
       }
    ],
    "instantiator":{
-      "clusterName":"OneNodeCluster",
+      "clusterName":"OneNodeC5",
       "hosts":[
          {
             "hostName":"YourHostname",
@@ -112,23 +109,28 @@
          "version":"5.1.0.1"
       },
       {
-         "product":"CDSW",
-         "version":"1.5.0.p1.849870"
-      },
-      {
          "product":"CFM",
          "version":"1.0.0.0"
       },
       {
          "product":"CDH",
-         "version":"6.2.0-1.cdh6.2.0.p0.967373"
+         "version":"5.16.2-1.cdh5.16.2.p0.8"
+      },
+      {
+         "product":"SPARK2",
+         "version":"2.4.0.cloudera1-1.cdh5.13.3.p0.1007356"
+      },
+      {
+         "product":"KAFKA",
+         "version":"4.1.0-1.4.1.0.p0.4"
       }
    ],
    "repositories":[
-      "https://archive.cloudera.com/cdh6/{latest_supported}/parcels/",
+      "https://archive.cloudera.com/cdh5/parcels/5.16.2.8/",
       "https://archive.cloudera.com/CFM/parcels/1.0.0.0/",
       "https://repo.continuum.io/pkgs/misc/parcels/archive/",
-      "https://archive.cloudera.com/cdsw1/1.5.0/parcels/"
+      "https://archive.cloudera.com/kafka/parcels/4.1.0.4/",
+      "https://archive.cloudera.com/spark2/parcels/2.4.0.cloudera1/"
    ],
    "services":[
       {
@@ -230,20 +232,30 @@
          "serviceType":"HUE"
       },
       {
-         "refName":"spark_on_yarn",
+         "refName":"spark2_on_yarn",
          "roleConfigGroups":[
             {
                "base":true,
-               "refName":"spark_on_yarn-SPARK_YARN_HISTORY_SERVER-BASE",
-               "roleType":"SPARK_YARN_HISTORY_SERVER"
+               "refName":"spark2_on_yarn-GATEWAY-BASE",
+               "roleType":"GATEWAY"
             },
             {
                "base":true,
-               "refName":"spark_on_yarn-GATEWAY-BASE",
-               "roleType":"GATEWAY"
+               "refName":"spark2_on_yarn-SPARK2_YARN_HISTORY_SERVER-BASE",
+               "roleType":"SPARK2_YARN_HISTORY_SERVER"
             }
          ],
-         "serviceType":"SPARK_ON_YARN"
+         "serviceConfigs":[
+            {
+               "name":"yarn_service",
+               "ref":"yarn"
+            },
+            {
+               "name":"hive_service",
+               "ref":"hive"
+            }
+         ],
+         "serviceType":"SPARK2_ON_YARN"
       },
       {
          "refName":"kudu",
@@ -277,12 +289,6 @@
                ],
                "refName":"kudu-KUDU_TSERVER-BASE",
                "roleType":"KUDU_TSERVER"
-            }
-         ],
-         "serviceConfigs":[
-            {
-               "name":"gflagfile_service_safety_valve",
-               "value":"--block_manager=file"
             }
          ],
          "serviceType":"KUDU"
@@ -480,59 +486,6 @@
             }
          ],
          "serviceType":"NIFI"
-      },
-      {
-         "refName":"cdsw",
-         "roleConfigGroups":[
-            {
-               "base":true,
-               "refName":"cdsw-CDSW_APPLICATION-BASE",
-               "roleType":"CDSW_APPLICATION"
-            },
-            {
-               "base":true,
-               "refName":"cdsw-CDSW_MASTER-BASE",
-               "roleType":"CDSW_MASTER"
-            },
-            {
-               "base":true,
-               "configs":[
-                  {
-                     "name":"cdsw.docker.devices.config",
-                     "value":"YourDockerDevice"
-                  }
-               ],
-               "refName":"cdsw-CDSW_DOCKER-BASE",
-               "roleType":"CDSW_DOCKER"
-            }
-         ],
-         "serviceConfigs":[
-            {
-               "name":"yarn_service",
-               "ref":"yarn"
-            },
-            {
-               "name":"hdfs_service",
-               "ref":"hdfs"
-            },
-            {
-               "name":"hive_service",
-               "ref":"hive"
-            },
-            {
-               "name":"spark_on_yarn_service",
-               "ref":"spark_on_yarn"
-            },
-            {
-               "name":"cdsw.domain.config",
-               "value":"YourCDSWDomain"
-            },
-            {
-               "name":"cdsw.master.ip.config",
-               "value":"YourPrivateIP"
-            }
-         ],
-         "serviceType":"CDSW"
       }
    ]
 }

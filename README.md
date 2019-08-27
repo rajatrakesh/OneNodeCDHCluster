@@ -1,4 +1,4 @@
-# One Node EDGE2AI CDH Cluster
+# Single Node EDGE2AI CDH Cluster
 
 This script automatically sets up a CDH cluster on the public cloud on a single VM with the following 16 services: 
 
@@ -19,7 +19,7 @@ This script automatically sets up a CDH cluster on the public cloud on a single 
 - YARN
 - ZK 
 
-More services can be added or removed by updating the template used.
+More services can be added or removed by updating the template used, example: HBase, Phoenix, Schema Registry, etc.
 
 As this cluster is meant to be used for demos, experimenting, training, and workshops, it doesn't setup Kerberos and TLS.
 
@@ -36,6 +36,21 @@ Below are instructions for creating the cluster with or without CDSW service. CD
 - OS disk size: at least 100 GB.
 - Docker device disk: at least 200GB SSD disk.
   - Node: you need a fast disk more than you need a large disk: aim for a disk with 3000 IOPS. This might mean choosing a 1TB disk. 
+
+### Provisioning Cluster with Schema Registry, Phoenix or other parcels
+
+Currently, there is no automation process to download parcels for services such as Schema Registry and Phoenix. You need to download the required files from the official Cloudera website on your laptop. Then, sftp the `.parcel`, `.sha` and `.jar` files into the root home directory. The script takes care of placing these files into the correct folders during installation.
+
+For example, you can install Schema Registry once your host looks like the below:
+
+```
+$ ls -l /root/
+-rwxr-xr-x. 1 centos centos 148855790 Aug  5 18:41 SCHEMAREGISTRY-0.7.0.1.0.0.0-11-el7.parcel
+-rw-r--r--. 1 centos centos        41 Aug  5 18:41 SCHEMAREGISTRY-0.7.0.1.0.0.0-11-el7.parcel.sha
+-rwxr-xr-x. 1 centos centos     14525 Aug  5 18:41 SCHEMAREGISTRY-0.7.0.jar
+```
+
+To install Schema Registry, you must use an appropriate template file, like `schemareg_template.json`.
 
 ### Configuration and installation
 - If you created the VM on Azure and need to resize the OS disk, here are the [instructions](scripts/how-to-resize-os-disk.md).
@@ -59,12 +74,12 @@ The script `setup.sh` takes 3 arguments:
 
 Example: create cluster without CDSW on AWS using default_template.json
 ```
-$ ./setup.sh aws default_template.json
+$ ./setup.sh aws templates/default_template.json
 ```
 
 Example: create cluster with CDSW on Azure using cdsw_template.json
 ```
-$ ./setup.sh azure cdsw_template.json /dev/sdc
+$ ./setup.sh azure templates/cdsw_template.json /dev/sdc
 ```
 
 Wait until the script finishes, check for any error.
@@ -97,7 +112,7 @@ nvme0n1     259:1    0  100G  0 disk
 +-nvme0n1p1 259:2    0  100G  0 part /
 nvme1n1     259:0    0 1000G  0 disk
 
-$ ./setup.sh aws cdsw_template.json /dev/nvme1n1
+$ ./setup.sh aws templates/cdsw_template.json /dev/nvme1n1
 ```
 
 Azure Standard D8s v3 or Standard D16s v3 
@@ -113,7 +128,7 @@ sdb      8:16   0   56G  0 disk
 sdc      8:32   0 1000G  0 disk
 sr0     11:0    1  628K  0 rom
 
-$ ./setup.sh azure cdsw_template.json /dev/sdc
+$ ./setup.sh azure templates/cdsw_template.json /dev/sdc
 ```
 
 GCP n1-standard-8 or n1-standard-16
@@ -124,7 +139,7 @@ sda      8:0    0  100G  0 disk
 └─sda1   8:1    0  100G  0 part /
 sdb      8:16   0 1000G  0 disk 
 
-$ ./setup.sh gcp cdsw_template.json /dev/sdb
+$ ./setup.sh gcp templates/cdsw_template.json /dev/sdb
 ```
 
 
