@@ -33,3 +33,6 @@ GRANT ALL ON nifireg.* TO 'nifireg'@'%' IDENTIFIED BY 'cloudera';
 
 CREATE DATABASE registry DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci;
 GRANT ALL ON registry.* TO 'registry'@'%' IDENTIFIED BY 'cloudera';
+
+CREATE DATABASE streamsmsgmgr DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci;
+GRANT ALL ON streamsmsgmgr.* TO 'streamsmsgmgr'@'%' IDENTIFIED BY 'cloudera';
