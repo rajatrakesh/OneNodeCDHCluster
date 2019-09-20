@@ -67,7 +67,7 @@ To install Schema Registry, you must use an appropriate template file, like `pho
 ```
 $ sudo su -
 $ yum install -y git
-$ git clone https://github.com/fabiog1901/OneNodeCDHCluster.git
+$ git clone https://github.com/rajatrakesh/OneNodeCDHCluster.git
 $ cd OneNodeCDHCluster
 $ chmod +x setup.sh
 ```
@@ -85,6 +85,12 @@ $ ./setup.sh aws templates/default_template.json
 Example: create cluster with CDSW on Azure using cdsw_template.json
 ```
 $ ./setup.sh azure templates/cdsw_template.json /dev/sdc
+```
+
+**Example: create cluster with CDSW, SMM, NiFi, Phoenix on AWS using workshop_template.json**
+
+```
+$ ./setup.sh aws templates/workshop_template.json /dev/nvme1n1
 ```
 
 Wait until the script finishes, check for any error.
