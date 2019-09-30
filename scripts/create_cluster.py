@@ -74,7 +74,6 @@ body = cm_client.ApiConfigList() # ApiConfigList | Configuration changes. (optio
 body.items = [cm_client.ApiConfig(name="host_agent_safety_valve", value="kafka_broker_topic_partition_metrics_for_smm_enabled=true")]
 
 cmd = host_api.update_config(message=message, body=body)
-wait(cmd)
 
     
     

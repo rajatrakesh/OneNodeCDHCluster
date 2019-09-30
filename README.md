@@ -19,6 +19,7 @@ This script automatically sets up a CDH cluster on the public cloud on a single 
 - Hue
 - Hive
 - Spark
+- Solr
 - Oozie
 - HDFS
 - YARN
@@ -55,7 +56,7 @@ $ ls -l /root/
 -rwxr-xr-x. 1 centos centos     14525 Aug  5 18:41 SCHEMAREGISTRY-0.7.0.jar
 ```
 
-To install Schema Registry, you must use an appropriate template file, like `phoenix_sr_smm_srm_template.json`.
+To install Schema Registry, you must use an appropriate template file, like `phoenix_sr_smm_srm_template.json` or `all_template.json`.
 
 ### Configuration and installation
 - If you created the VM on Azure and need to resize the OS disk, here are the [instructions](scripts/how-to-resize-os-disk.md).
