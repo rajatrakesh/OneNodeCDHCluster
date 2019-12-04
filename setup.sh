@@ -170,6 +170,8 @@ sed -i "s#YourDockerDevice#$DOCKERDEVICE#g" ~/OneNodeCDHCluster/$TEMPLATE
 
 sed -i "s/YourHostname/`hostname -f`/g" ~/OneNodeCDHCluster/scripts/create_cluster.py
 
+
+
 python ~/OneNodeCDHCluster/scripts/create_cluster.py $TEMPLATE
 
 # configure and start EFM and Minifi
