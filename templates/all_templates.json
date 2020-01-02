@@ -1,6 +1,6 @@
 {
-    "cdhVersion": "6.3.0",
-    "cmVersion": "6.3.0",
+    "cdhVersion": "6.3.2",
+    "cmVersion": "6.3.2",
     "displayName": "OneNodeCluster",
     "hostTemplates": [
         {
@@ -136,7 +136,7 @@
         },
         {
             "product": "CDH",
-            "version": "6.3.0-1.cdh6.3.0.p0.1279813"
+            "version": "6.3.2-1.cdh6.3.2.p0.1605554"
         },
         {
             "product": "PHOENIX",
@@ -156,7 +156,7 @@
         }
     ],
     "repositories": [
-        "https://archive.cloudera.com/cdh6/6.3.0/parcels/",
+        "https://archive.cloudera.com/cdh6/6.3.2/parcels/",
         "https://archive.cloudera.com/CFM/parcels/1.0.0.0/",
         "https://repo.continuum.io/pkgs/misc/parcels/archive/",
         "https://archive.cloudera.com/cdsw1/1.6.0/parcels/"
